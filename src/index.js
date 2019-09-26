@@ -96,12 +96,15 @@ class Game extends React.Component {
     super(props);
     this.state = {
       history: [{ squares: Array(9).fill(null) }],
-      xIsNext: true
+      xIsNext: true,
+      turn: "X",
+      stepNumber: 0
     };
   }
 
   handleClick(i) {
-    const history = this.state.history;
+    //const history = this.state.history;
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
     console.log(squares);
@@ -111,21 +114,35 @@ class Game extends React.Component {
       return;
     }
 
-    var turn = history.turn;
+    var turn = this.state.turn;
     squares[i] = turn;
+    console.log("previous turn : " + squares[i]);
     if (turn === "X") turn = "O";
     else turn = "X";
     squares[i] = this.state.xIsNext ? "xx" : "oo";
     this.setState({
       history: history.concat([{ squares: squares }]), //[...history, squares],
       xIsNext: !this.state.xIsNext,
-      turn: turn
+      turn: turn,
+      stepNumber: history.length
+    });
+  }
+
+  jumpTo(step) {
+    this.setState({
+      stepNumber: step,
+      xIsNext: step % 2 == 0,
+      turn: step % 2 == 0 ? "X" : "O"
     });
   }
 
   render() {
     const history = this.state.history;
-    const current = history[history.length - 1];
+    /*
+    modify the Game component’s render method from always rendering the last move
+     to rendering the currently selected move according to stepNumber
+    */
+    const current = history[this.state.stepNumber];
     console.log("render() : " + current);
     const winner = calculateWinner(current.squares);
 
